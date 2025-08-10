@@ -8,16 +8,33 @@ on:
 
 jobs:
   terraform:
-    if: ${{ hashFiles('Terraform/**') != '' }}   # only run if Terraform/ exists
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Detect whether the Terraform/ folder exists
+      - name: Check Terraform folder
+        id: check_tf
+        run: |
+          if [ -d "Terraform" ]; then
+            echo "HAS_TF=true" >> $GITHUB_ENV
+          else
+            echo "HAS_TF=false" >> $GITHUB_ENV
+          fi
+
       - uses: hashicorp/setup-terraform@v3
+        if: env.HAS_TF == 'true'
+
       - name: Terraform fmt
+        if: env.HAS_TF == 'true'
         run: terraform -chdir=Terraform fmt -check -recursive
+
       - name: Terraform init (no backend)
+        if: env.HAS_TF == 'true'
         run: terraform -chdir=Terraform init -backend=false
+
       - name: Terraform validate
+        if: env.HAS_TF == 'true'
         run: terraform -chdir=Terraform validate -no-color
 
   docker:
