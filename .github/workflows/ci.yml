@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
   terraform:
@@ -10,10 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
-      # Format check (non-fatal tip: run fmt locally first)
       - name: Terraform fmt
         run: terraform -chdir=Terraform fmt -check -recursive
-      # Safe init that skips your remote backend (no AWS creds needed)
       - name: Terraform init (no backend)
         run: terraform -chdir=Terraform init -backend=false
       - name: Terraform validate
