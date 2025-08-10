@@ -1,0 +1,35 @@
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform fmt
+        run: terraform -chdir=Terraform fmt -check
+      - name: Terraform validate
+        run: terraform -chdir=Terraform validate
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker
+        run: docker build -t cloud-devops-app:ci ./Docker/App
+
+  kube-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Kubernetes Manifests (kubectl dry-run)
+        run: |
+          sudo apt-get update && sudo apt-get install -y kubectl
+          kubectl apply --dry-run=client -f Kubernetes/namespace.yaml
+          kubectl apply --dry-run=client -f Kubernetes/deployment.yaml
+          kubectl apply --dry-run=client -f Kubernetes/service.yaml
