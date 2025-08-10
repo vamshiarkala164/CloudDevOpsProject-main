@@ -47,15 +47,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
         with:
           version: 'latest'
-
       - name: Validate Kubernetes Manifests (client dry-run, no server validation)
         run: |
           kubectl apply --dry-run=client --validate=false -f Kubernetes/namespace.yaml
           kubectl apply --dry-run=client --validate=false -f Kubernetes/deployment.yaml
           kubectl apply --dry-run=client --validate=false -f Kubernetes/service.yaml
-
