@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-# terraform:
-#
+  terraform:
+    if: ${{ hashFiles('Terraform/**') != '' }}   # only run if Terraform/ exists
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
