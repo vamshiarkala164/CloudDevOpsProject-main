@@ -11,29 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check Terraform folder
-        id: check_tf
-        run: |
-          if [ -d "Terraform" ]; then
-            echo "HAS_TF=true" >> $GITHUB_ENV
-          else
-            echo "HAS_TF=false" >> $GITHUB_ENV
-          fi
-
       - uses: hashicorp/setup-terraform@v3
-        if: env.HAS_TF == 'true'
-
       - name: Terraform fmt
-        if: env.HAS_TF == 'true'
         run: terraform -chdir=Terraform fmt -check -recursive
-
       - name: Terraform init (no backend)
-        if: env.HAS_TF == 'true'
         run: terraform -chdir=Terraform init -backend=false
-
       - name: Terraform validate
-        if: env.HAS_TF == 'true'
         run: terraform -chdir=Terraform validate -no-color
 
   docker:
@@ -51,8 +34,8 @@ jobs:
         uses: azure/setup-kubectl@v4
         with:
           version: 'latest'
-      - name: Validate Kubernetes Manifests (client dry-run, no server validation)
+      - name: Validate Kubernetes Manifests (client dry-run)
         run: |
-          kubectl apply --dry-run=client --validate=false -f Kubernetes/namespace.yaml
-          kubectl apply --dry-run=client --validate=false -f Kubernetes/deployment.yaml
-          kubectl apply --dry-run=client --validate=false -f Kubernetes/service.yaml
+          kubectl apply --dry-run=client -f Kubernetes/namespace.yaml
+          kubectl apply --dry-run=client -f Kubernetes/deployment.yaml
+          kubectl apply --dry-run=client -f Kubernetes/service.yaml
